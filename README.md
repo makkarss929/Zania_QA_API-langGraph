@@ -2,8 +2,15 @@
 
 * Created QA model based on `handbook.pdf`
 
+## Architecture
 
-## Input Schema
+1. Loading `PDF``
+2. Converting that into `small chunks`, as LLM can process small text (1000 characters) at at time.
+3. Creating `In Memory vector DB`, as I don't have access to `external vector DB`.
+4. Creating `Retriever object` to retriever answers.
+
+
+## Input Schema for route `/` - POST request
 
 
 ```

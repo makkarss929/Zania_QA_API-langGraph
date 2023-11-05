@@ -47,7 +47,7 @@ class ZaniaQA:
         
 
     def creating_retreiver(self, db):
-        retriever = db.as_retriever()
+        retriever = db.as_retriever(search_kwargs={"k": 3})
         llm = ChatOpenAI(temperature = 0.0, model=llm_model)
         qa_stuff = RetrievalQA.from_chain_type(
             llm=llm, 
