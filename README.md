@@ -4,8 +4,8 @@
 
 ## System Architecture
 
-* Following `OOPS` and `SOLID5` principles to make code more `efficient, modular, flexible, extensible, scalable`.
-* `SRP (Single Responsibility Principle)` and `DIP (Dependency Inversion Principle)` are frequently used.
+* In Code Architecture, we are following `OOPS` and `SOLID5` principles to make code more efficient `modular, flexible, extensible, scalable`.
+* In `open source repos` usually follow this [principles](https://realpython.com/solid-principles-python/), 
 * Using `ThreadPoolExecutor` for concurrent processing for making parallel calls, getting results faster.
 * Using `FastAPI` as backend, which is `reliable` and `robust`.
 * After that doing `containerization` with `Docker`, which is further easy to scale.
