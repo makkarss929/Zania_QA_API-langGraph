@@ -20,7 +20,6 @@ class QASystem:
         self.loader = PDFLoader(path)
         self.splitter = TextSplitter()
         self.vector_db = VectorDB()
-        self.model_selector = "gpt-4o-mini"
         self.qa_pipeline = None
 
     def initialize_pipeline(self):
@@ -33,7 +32,7 @@ class QASystem:
         retriever = self.vector_db.get_retriever()
         
         # Set up language model and QA chain
-        model_name = self.model_selector.get_model_name()
+        model_name = "gpt-4o-mini"
         llm = ChatOpenAI(temperature=0.0, model=model_name)
         self.qa_pipeline = RetrievalQA.from_chain_type(
             llm=llm, 
