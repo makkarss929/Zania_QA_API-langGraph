@@ -4,19 +4,19 @@
 
 ## System Architecture
 
-* Following `OOPS` and `SOLID5` principles to make code more efficient, modular, flexible, extensible, scalable and production ready.
+* Following `OOPS` and `SOLID5` principles to make code more `efficient, modular, flexible, extensible, scalable`.
 * `SRP (Single Responsibility Principle)` and `DIP (Dependency Inversion Principle)` are frequently used.
 * Using `ThreadPoolExecutor` for concurrent processing for making parallel calls, getting results faster.
 * Using `FastAPI` as backend, which is `reliable` and `robust`.
 * After that doing `containerization` with `Docker`, which is further easy to scale.
 * Further, we can add `Load balancers` using `Nginx` as Reverse Proxy, we can scale `instances` very easily, by transforming it into `Multi Container Architecture` using `Docker compose`. 
 
-## Code Logic
+## Code Architecture
 
-1. Loading `PDF``
-2. Converting that into `small chunks`, as LLM can process small text (1000 characters) at at time.
-3. Creating `In Memory vector DB`, as I don't have access to `external vector DB`.
-4. Creating `Retriever object` to retriever answers.
+1. Loading `PDF` -> Creating `PDFLoader` class, following `SRP (Single Responsibility Principle)`
+2. Converting that into `small chunks`, -> Creating `TextSplitter` class for that. following `SRP (Single Responsibility Principle)`
+3. Creating `In Memory vector DB`. --> Creating `VectorDB` class for that, following `SRP (Single Responsibility Principle)`
+4. finally, creating `QASystem` Class, and following `Facade Pattern, DIP (Dependency Inversion Principle)`, and integrating all the previous classes and single entry point for performing the question-answering process
 
 
 ## Input Schema for route `/` - POST request
