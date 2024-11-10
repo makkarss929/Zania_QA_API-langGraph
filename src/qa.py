@@ -3,7 +3,7 @@ import openai
 from typing import Union, List
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
-from src.pdf import PDFLoader
+from src.pdf import PDFDownloader, PDFLoader
 from src.vector_db import VectorDB
 from src.preprocessing import TextSplitter
 # Use ThreadPoolExecutor for concurrent processing
@@ -15,12 +15,18 @@ openai.api_key  = os.environ['OPENAI_API_KEY']
 
 # QASystem Class (Facade Pattern, Dependency Inversion Principle)
 class QASystem:
-    def __init__(self, path: str):
-        self.path = path
-        self.loader = PDFLoader(path)
+    def __init__(self, url: str):
+        self.pdf_downloader_obj = PDFDownloader(url)
+        self.path = self.pdf_downloader_obj.download_pdf()
+        self.loader = PDFLoader(self.path)
         self.splitter = TextSplitter()
         self.vector_db = VectorDB()
         self.qa_pipeline = None
+
+    
+    def __del__(self):
+        # cleanup file
+        self.pdf_downloader_obj.cleanup()
 
     def initialize_pipeline(self):
         # Load and split PDF into chunks

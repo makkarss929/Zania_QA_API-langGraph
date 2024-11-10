@@ -10,6 +10,7 @@ import os
 
 
 class ZaniaQASchema(BaseModel):
+    url: str
     query: Union[str, List[str]]
 
 
@@ -25,9 +26,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize and set up the QA system
-qa_system = QASystem(os.path.join("fixtures", "handbook.pdf"))
-qa_system.initialize_pipeline()
 
 @app.get("/")
 def hello():
@@ -36,6 +34,9 @@ def hello():
 
 @app.post("/answer_question")
 def answer_question(body: ZaniaQASchema, request: Request):
+    # Initialize and set up the QA system
+    qa_system = QASystem(body.url)
+    qa_system.initialize_pipeline()
     answer = qa_system.answer_question(body.query)
     return {"answer": answer}
 

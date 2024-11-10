@@ -9,7 +9,8 @@
 * In Code Architecture, we are following `OOPS` and `SOLID5` principles to make code more efficient `modular, flexible, extensible, scalable`.
 * Usually `open source repos` follow this [principles](https://realpython.com/solid-principles-python/), `SRP` and `DIP` are widely used.
 * Coding steps
-  1. Loading `PDF` -> Creating `PDFLoader` class, following `SRP (Single Responsibility Principle)`
+  1. Downloading PDF and clean up after use --> Creating `PDFDownloader` class, following `SRP (Single Responsibility Principle)`.
+  2. Loading `PDF` -> Creating `PDFLoader` class, following `SRP (Single Responsibility Principle)`
   2. Converting documents into `small chunks`, -> Creating `TextSplitter` class for that. following `SRP (Single Responsibility Principle)`
   3. Creating `In Memory vector DB`. --> Creating `VectorDB` class for that, following `SRP (Single Responsibility Principle)`
   4. finally, creating `QASystem` Class, and following `Facade Pattern, DIP (Dependency Inversion Principle)`, and `integrating 3 previous classes` and creating `answer_question function` in QASystem as single entry point.
@@ -30,12 +31,12 @@
 
 ```
 {
-  "query": ["What is the name of the company?",
+  "url": "https://drive.google.com/uc?export=download&id=1HHfNQAQpLkSRz89KyAhFAekuEndcl3M8",
+  "query":  ["What is the name of the company?",
     "Who is the CEO of the company?",
     "What is their vacation policy?",
     "What is the termination policy?",
     "Please provide an Overview of OOPs principles?"]
-
 }
 ```
 ## Output Schema
