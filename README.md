@@ -1,22 +1,28 @@
 ## Zania QA API
 
-* Creating a scalable QA microservice
+* Creating a robust and scalable QA microservice
 
-## System Architecture
 
-* In Code Architecture, we are following `OOPS` and `SOLID5` principles to make code more efficient `modular, flexible, extensible, scalable`.
-* In `open source repos` usually follow this [principles](https://realpython.com/solid-principles-python/), 
-* Using `ThreadPoolExecutor` for concurrent processing for making parallel calls, getting results faster.
-* Using `FastAPI` as backend, which is `reliable` and `robust`.
-* After that doing `containerization` with `Docker`, which is further easy to scale.
-* Further, we can add `Load balancers` using `Nginx` as Reverse Proxy, we can scale `instances` very easily, by transforming it into `Multi Container Architecture` using `Docker compose`. 
 
 ## Code Architecture
 
-1. Loading `PDF` -> Creating `PDFLoader` class, following `SRP (Single Responsibility Principle)`
-2. Converting that into `small chunks`, -> Creating `TextSplitter` class for that. following `SRP (Single Responsibility Principle)`
-3. Creating `In Memory vector DB`. --> Creating `VectorDB` class for that, following `SRP (Single Responsibility Principle)`
-4. finally, creating `QASystem` Class, and following `Facade Pattern, DIP (Dependency Inversion Principle)`, and `integrating 3 previous classes` and creating `answer_question function` in QASystem as single entry point
+* In Code Architecture, we are following `OOPS` and `SOLID5` principles to make code more efficient `modular, flexible, extensible, scalable`.
+* Usually `open source repos` follow this [principles](https://realpython.com/solid-principles-python/), `SRP` and `DIP` are widely used.
+* Coding steps
+  1. Loading `PDF` -> Creating `PDFLoader` class, following `SRP (Single Responsibility Principle)`
+  2. Converting documents into `small chunks`, -> Creating `TextSplitter` class for that. following `SRP (Single Responsibility Principle)`
+  3. Creating `In Memory vector DB`. --> Creating `VectorDB` class for that, following `SRP (Single Responsibility Principle)`
+  4. finally, creating `QASystem` Class, and following `Facade Pattern, DIP (Dependency Inversion Principle)`, and `integrating 3 previous classes` and creating `answer_question function` in QASystem as single entry point.
+
+* Using `ThreadPoolExecutor` for concurrent processing for making parallel calls, getting results faster.
+
+
+
+## System Architecture
+
+* Using `FastAPI` as backend, which is `reliable` and `robust`.
+* After that doing `containerization` with `Docker`, which is further easy to scale.
+* If we want to scale we can add `Load balancers` by adding `nginx` container, we can easily create `replicas`, by transforming it into `Multi Container Architecture` using `Docker compose`. 
 
 
 ## Input Schema for route `/` - POST request
