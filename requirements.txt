@@ -1,5 +1,6 @@
 langchain
 langchain_community
+scikit-learn
 python-dotenv
 openai
 pypdf

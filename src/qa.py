@@ -6,6 +6,7 @@ from langchain.chat_models import ChatOpenAI
 from src.pdf import PDFDownloader, PDFLoader
 from src.vector_db import VectorDB
 from src.preprocessing import TextSplitter
+from src.retreiver import CustomRetrievalQAPipeline
 # Use ThreadPoolExecutor for concurrent processing
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv, find_dotenv
@@ -34,18 +35,10 @@ class QASystem:
         chunked_documents = self.splitter.split_documents(documents)
         
         # Create vector database
-        self.vector_db.create_database(chunked_documents)
-        retriever = self.vector_db.get_retriever()
-        
+        self.vector_db.create_database(chunked_documents)        
         # Set up language model and QA chain
         model_name = "gpt-4o-mini"
-        llm = ChatOpenAI(temperature=0.0, model=model_name)
-        self.qa_pipeline = RetrievalQA.from_chain_type(
-            llm=llm, 
-            chain_type="stuff", 
-            retriever=retriever,
-            verbose=True
-        )
+        self.qa_pipeline = CustomRetrievalQAPipeline(model_name, self.vector_db, top_k=5, threshold=0.8)
 
     def answer_question(self, query: Union[str, List[str]]):
         if not self.qa_pipeline:

@@ -8,15 +8,23 @@
 
 * In Code Architecture, we are following `OOPS` and `SOLID5` principles to make code more efficient `modular, flexible, extensible, scalable`.
 * Usually `open source repos` follow this [principles](https://realpython.com/solid-principles-python/), `SRP` and `DIP` are widely used.
-* Coding steps
+* QA System Pipeline
   1. Downloading PDF and clean up after use --> Creating `PDFDownloader` class, following `SRP (Single Responsibility Principle)`.
   2. Loading PDF -> Creating `PDFLoader` class, following `SRP (Single Responsibility Principle)`
   2. Converting documents into small chunks, -> Creating `TextSplitter` class for that. following `SRP (Single Responsibility Principle)`
   3. Creating `In Memory vector DB`. --> Creating `VectorDB` class for that, following `SRP (Single Responsibility Principle)`
-  4. finally, creating `QASystem` Class, and following `Facade Pattern, DIP (Dependency Inversion Principle)`, and `integrating 3 previous classes` and creating `answer_question function` in QASystem as single entry point.
+  5. Retreiving top  documents --> Creating `CustomRetrievalQAPipeline` stuff method, we have implemented.
+  6. finally, creating `QASystem` Class, and following `Facade Pattern, DIP (Dependency Inversion Principle)`, and `integrating 3 previous classes` and creating `answer_question function` in QASystem as single entry point.
 
 * Using `ThreadPoolExecutor` for concurrent processing for making parallel calls, getting results faster.
 
+
+### Chain Techniques
+
+* stuff - (Pros: very fast, useful for short documents, Cons : not useful for large documents)
+* Map_reduce - (Pros : useful for large documents like summarisation, Cons : and resource extensive)
+* Refine - (Pros : useful for large documents like summarisation, Cons : Time consuming as calls are not parallel, and resource extensive)
+* Map_rerank - - (Pros : useful for large documents like summarisation, Cons : and resource extensive)
 
 
 ## System Architecture
