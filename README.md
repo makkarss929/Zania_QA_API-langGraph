@@ -13,7 +13,7 @@
   2. Loading PDF -> Creating `PDFLoader` class, following `SRP (Single Responsibility Principle)`
   2. Converting documents into small chunks, -> Creating `TextSplitter` class for that. following `SRP (Single Responsibility Principle)`
   3. Creating `In Memory vector DB`. --> Creating `VectorDB` class for that, following `SRP (Single Responsibility Principle)`
-  5. Retreiving top  documents --> Creating `CustomRetrievalQAPipeline` stuff method, we have implemented.
+  5. Retreiving top documents --> Creating `CustomRetrievalQAPipeline` stuff method, we have implemented.
   6. finally, creating `QASystem` Class, and following `Facade Pattern, DIP (Dependency Inversion Principle)`, and `integrating 3 previous classes` and creating `answer_question function` in QASystem as single entry point.
 
 * Using `ThreadPoolExecutor` for concurrent processing for making parallel calls, getting results faster.
