@@ -1,6 +1,6 @@
 ## Zania QA API - Langraph
 
-* Creating a robust and scalable QA microservice
+* **Multi-Document Question Answering:** Extending the system to answer questions across multiple documents, potentially summarizing or reranking them for improved accuracy.
 
 ### Diagram of Code Architecture
 
@@ -20,7 +20,10 @@ graph LR
     end
 
     subgraph "LangGraph Pipeline"
-        D --> I{Retrieve Node};
+        D --> N(Load_Documents Node)
+        N --> O{Summarize_documents Node - Optional};
+        O --> P(Create Vector DB Node)
+        P --> I{Retrieve Node};
         I --> J(Vector Database);
         D --> K{Generate Node};
         K --> L(ChatOpenAI Model);
@@ -37,34 +40,46 @@ graph LR
 ```mermaid
 graph LR
     subgraph QASystem
-        A[Start: retrieve] --> B(retrieve Node);
-        B --> C(generate Node);
-        C --> D[End];
+    A[Start: load_documents] --> B(load_documents Node);
+    B --> C{summarize Node - Optional};
+    C --> D(create_db Node);
+    D --> E(retrieve Node);
+    E --> F(rerank Node);
+    F --> G(generate Node);
+    G --> H[End];
     end
 
-    style A fill: #003366, stroke: #333, stroke-width: 2px, color: #FFFFFF
-    style D fill: #003366, stroke: #333, stroke-width: 2px, color: #FFFFFF
+    style A fill:#003366,stroke:#333,stroke-width:2px,color:#FFFFFF
+    style H fill:#003366,stroke:#333,stroke-width:2px,color:#FFFFFF
+    style C fill:#003366,stroke:#333,stroke-width:2px,color:#FFFFFF
+    style F fill:#003366,stroke:#333,stroke-width:2px,color:#FFFFFF
 ```
 
-## Code Architecture
+## Coding Architecture
 
-* In Code Architecture, we are following `OOPS` and `SOLID5` principles to make code more efficient
-  `modular, flexible, extensible, scalable`.
-* Usually, `open source repos` follow this [principles](https://realpython.com/solid-principles-python/), `SRP` and
-  `DIP` are widely used.
-* Key Components and Design:
-    * **Abstract Base Classes (ABCs):**  We utilize abstract base classes (`AbstractPDFLoader`, `AbstractTextSplitter`,
-      `AbstractVectorDB`) to define interfaces for key components. This promotes the Dependency Inversion Principle (
-      DIP), allowing high-level modules to depend on abstractions rather than concrete implementations.
-    * **Dependency Injection:**  The `QASystem` class receives instances of these abstract classes through its
-      constructor, enabling loose coupling and making it easy to swap out different implementations (e.g., a different
-      PDF loader or text splitter).
-    * **LangGraph for Orchestration:** LangGraph is employed to define the question answering pipeline as a directed
-      graph.
-        * `GraphState`: Defines the state managed by the graph (query, documents, answer, etc.).
-        * `retrieve` and `generate` Nodes: These functions represent individual steps in the QA process, making the code
-          modular and easier to test.
-* Using `ThreadPoolExecutor` for concurrent processing for making parallel calls and getting results faster.
+The system follows a layered architecture designed for modularity, flexibility, and maintainability:
+
+*   **FastAPI Application:**  The entry point for client requests.
+    *   `Client Request`: Receives incoming requests.
+    *   `FastAPI Router`: Routes requests to the `QASystem`.
+
+*   **QASystem:** Orchestrates the entire question answering process.
+    *   Leverages a `LangGraph Pipeline` to define the workflow.
+    *   Utilizes:
+        *   `PDFLoader`: Loads PDF documents.
+        *   `TextSplitter`: Splits documents into manageable chunks.
+        *   `VectorDB`: Manages the vector database for semantic search.
+        *   `ChatOpenAI`: Generates answers using a language model.
+
+*   **LangGraph Pipeline:** Defines the steps for answering a question.
+    *   `Load_Documents Node`: Load the Documents
+    *   `Summarize_documents Node (Optional)`: Summarizes the documents, to improve the speed and to decrease token usage.
+    *   `Create Vector DB Node`: Creates a Vector DB from documents or summaries.
+    *   `Retrieve Node`: Retrieves relevant document chunks from the Vector Database.
+    *   `Rerank Node`: Reranks document chunks to select the most relevant.
+    *   `Generate Node`: Generates the final answer using the language model based on the content received from prompts.
+
+The `QASystem` and `LangGraph Pipeline` layers are styled in dark blue (`#003366`) to highlight their core role in the question answering process. The architecture prioritizes modularity through the separation of responsibilities and the use of well-defined interfaces.
 
 ## System Architecture
 

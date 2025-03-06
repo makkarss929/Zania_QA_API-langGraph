@@ -5,6 +5,7 @@ from typing import Union, List, Dict, Optional
 
 import openai
 from dotenv import load_dotenv, find_dotenv
+from langchain.chains.summarize import load_summarize_chain
 from langchain.chat_models import ChatOpenAI
 from langchain.docstore.document import Document
 from langchain.prompts import ChatPromptTemplate
@@ -37,9 +38,46 @@ class GraphState(TypedDict):
     answer: Optional[str]  # Make it optional to start with
     retriever: VectorStoreRetriever
     llm: ChatOpenAI
+    summaries: List[str]  # Add summaries to the state
+    pdf_loader: AbstractPDFLoader
+    text_splitter: AbstractTextSplitter
+    vector_db: AbstractVectorDB
 
 
 # Node Functions
+
+def load_documents(state: GraphState) -> Dict[str, List[Document]]:
+    """Loads PDF documents."""
+    print("Entering load_documents node")
+    pdf_loader = state['pdf_loader']
+    documents = pdf_loader.load_documents()
+    return {"documents": documents}
+
+
+def summarize_documents(state: GraphState) -> Dict[str, List[str]]:
+    """Summarizes PDF documents."""
+    print("Entering summarize_documents node")
+    documents = state['documents']
+    llm = state['llm']
+    summaries = []
+    for doc in documents:
+        chain = load_summarize_chain(llm, chain_type="stuff")
+        summary = chain.run([doc])
+        summaries.append(summary)
+    return {"summaries": summaries}
+
+
+def create_vector_db(state: GraphState) -> Dict[str, VectorStoreRetriever]:
+    """Creates vector database."""
+    print("Entering create_vector_db node")
+    text_splitter = state['text_splitter']
+    vector_db = state['vector_db']
+    documents = state['documents']
+    chunked_documents = text_splitter.split_documents(documents)
+    vector_db.create_database(chunked_documents)
+    retriever = vector_db.get_retriever()
+    return {"retriever": retriever}
+
 
 def retrieve(state: GraphState) -> Dict[str, List[Document]]:
     """Fetches relevant documents based on the query."""
@@ -49,6 +87,17 @@ def retrieve(state: GraphState) -> Dict[str, List[Document]]:
     docs = retriever.get_relevant_documents(query)
     print(f"Retrieved {len(docs)} documents")
     return {"documents": docs}
+
+
+def rerank(state: GraphState) -> Dict[str, List[Document]]:
+    """Reranks the retrieved documents."""
+    print("Entering rerank node")
+    # This is a placeholder for the reranking logic.  You would need to
+    # integrate a reranking model (e.g., using Hugging Face Transformers).
+    # For now, it simply returns the original documents.
+    documents = state['documents']
+    print("No Reranking Model so defaulting to original Model.")
+    return {"documents": documents}
 
 
 def generate(state: GraphState) -> Dict[str, str]:
@@ -94,24 +143,25 @@ class QASystem:
         self.retriever = None
 
     def initialize_pipeline(self):
-        # Load and split PDF into chunks
-        documents = self.pdf_loader.load_documents()
-        chunked_documents = self.text_splitter.split_documents(documents)
-
-        # Create vector database
-        self.vector_db.create_database(chunked_documents)
-        self.retriever = self.vector_db.get_retriever()
         # Build LangGraph
         self.build_graph()
 
     def build_graph(self):
         builder = StateGraph(GraphState)
 
+        builder.add_node("load_documents", load_documents)
+        builder.add_node("summarize_documents", summarize_documents)
+        builder.add_node("create_vector_db", create_vector_db)
         builder.add_node("retrieve", retrieve)
+        builder.add_node("rerank", rerank)
         builder.add_node("generate", generate)
 
-        builder.set_entry_point("retrieve")
-        builder.add_edge("retrieve", "generate")
+        builder.set_entry_point("load_documents")
+        builder.add_edge("load_documents", "summarize_documents")
+        builder.add_edge("summarize_documents", "create_vector_db")
+        builder.add_edge("create_vector_db", "retrieve")
+        builder.add_edge("retrieve", "rerank")
+        builder.add_edge("rerank", "generate")
         builder.add_edge("generate", END)  # graph must end
 
         self.graph = builder.compile()
@@ -121,21 +171,23 @@ class QASystem:
             raise ValueError("QA graph has not been initialized.")
 
         if isinstance(query, list):
-            results = []
+            answers = []
             with ThreadPoolExecutor() as executor:
                 # Map questions to concurrent execution
                 future_answers = executor.map(self.process_single_query, query)
                 # Collect results
                 for question, answer in zip(query, future_answers):
-                    results.append({"question": question, "answer": answer})
-            return results
+                    answers.append({"question": question, "answer": answer})
+            return answers
 
         elif isinstance(query, str):
-            return {"question": query, "answer": self.process_single_query(query)}
+            return self.process_single_query(query)
 
     def process_single_query(self, query: str):
         """Processes a single query using the LangGraph."""
 
-        inputs = {"query": query, "documents": [], "answer": None, "retriever": self.retriever, "llm": self.llm}
+        inputs = {"query": query, "documents": [], "answer": None, "retriever": self.retriever, "llm": self.llm,
+                  'text_splitter': self.text_splitter,
+                  'pdf_loader': self.pdf_loader, 'vector_db': self.vector_db, 'summaries': []}
         result = self.graph.invoke(inputs)
-        return result.get("answer", "No answer found.")
+        return {"question": query, "answer": result.get("answer", "No answer found.")}
