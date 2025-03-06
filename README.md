@@ -1,32 +1,79 @@
-## Zania QA API
+## Zania QA API - Langraph
 
 * Creating a robust and scalable QA microservice
 
+### Diagram of Code Architecture
 
+```mermaid
+graph LR
+    subgraph "FastAPI Application"
+        A[Client Request] --> B(FastAPI Router);
+        B --> C{QASystem};
+    end
+
+    subgraph "QASystem"
+        C --> D{LangGraph Pipeline};
+        C --> E(PDFLoader);
+        C --> F(TextSplitter);
+        C --> G(VectorDB);
+        C --> H(ChatOpenAI);
+    end
+
+    subgraph "LangGraph Pipeline"
+        D --> I{Retrieve Node};
+        I --> J(Vector Database);
+        D --> K{Generate Node};
+        K --> L(ChatOpenAI Model);
+        L --> M[Answer];
+        M --> D;
+    end
+
+    style C fill: #003366, stroke: #333, stroke-width: 2px, color: #FFFFFF
+    style D fill: #003366, stroke: #333, stroke-width: 2px, color: #FFFFFF
+```
+
+### Graph Diagram
+
+```mermaid
+graph LR
+    subgraph QASystem
+        A[Start: retrieve] --> B(retrieve Node);
+        B --> C(generate Node);
+        C --> D[End];
+    end
+
+    style A fill: #003366, stroke: #333, stroke-width: 2px, color: #FFFFFF
+    style D fill: #003366, stroke: #333, stroke-width: 2px, color: #FFFFFF
+```
 
 ## Code Architecture
 
-* In Code Architecture, we are following `OOPS` and `SOLID5` principles to make code more efficient `modular, flexible, extensible, scalable`.
-* Usually `open source repos` follow this [principles](https://realpython.com/solid-principles-python/), `SRP` and `DIP` are widely used.
-* Coding steps
-  1. Loading `PDF` -> Creating `PDFLoader` class, following `SRP (Single Responsibility Principle)`
-  2. Converting documents into `small chunks`, -> Creating `TextSplitter` class for that. following `SRP (Single Responsibility Principle)`
-  3. Creating `In Memory vector DB`. --> Creating `VectorDB` class for that, following `SRP (Single Responsibility Principle)`
-  4. finally, creating `QASystem` Class, and following `Facade Pattern, DIP (Dependency Inversion Principle)`, and `integrating 3 previous classes` and creating `answer_question function` in QASystem as single entry point.
-
-* Using `ThreadPoolExecutor` for concurrent processing for making parallel calls, getting results faster.
-
-
+* In Code Architecture, we are following `OOPS` and `SOLID5` principles to make code more efficient
+  `modular, flexible, extensible, scalable`.
+* Usually, `open source repos` follow this [principles](https://realpython.com/solid-principles-python/), `SRP` and
+  `DIP` are widely used.
+* Key Components and Design:
+    * **Abstract Base Classes (ABCs):**  We utilize abstract base classes (`AbstractPDFLoader`, `AbstractTextSplitter`,
+      `AbstractVectorDB`) to define interfaces for key components. This promotes the Dependency Inversion Principle (
+      DIP), allowing high-level modules to depend on abstractions rather than concrete implementations.
+    * **Dependency Injection:**  The `QASystem` class receives instances of these abstract classes through its
+      constructor, enabling loose coupling and making it easy to swap out different implementations (e.g., a different
+      PDF loader or text splitter).
+    * **LangGraph for Orchestration:** LangGraph is employed to define the question answering pipeline as a directed
+      graph.
+        * `GraphState`: Defines the state managed by the graph (query, documents, answer, etc.).
+        * `retrieve` and `generate` Nodes: These functions represent individual steps in the QA process, making the code
+          modular and easier to test.
+* Using `ThreadPoolExecutor` for concurrent processing for making parallel calls and getting results faster.
 
 ## System Architecture
 
 * Using `FastAPI` as backend, which is `reliable` and `robust`.
 * After that doing `containerization` with `Docker`, which is further easy to scale.
-* If we want to scale we can add `Load balancers` by adding `nginx` container, we can easily create `replicas`, by transforming it into `Multi Container Architecture` using `Docker compose`. 
-
+* If we want to scale we can add `Load balancers` by adding `nginx` container, we can easily create `replicas`, by
+  transforming it into `Multi Container Architecture` using `Docker compose`.
 
 ## Input Schema for route `/` - POST request
-
 
 ```
 {
@@ -38,8 +85,8 @@
 
 }
 ```
-## Output Schema
 
+## Output Schema
 
 ```
 {
@@ -82,7 +129,6 @@ docker run -p 5001:5001 -m 1G zania_qa_api
 ```
 
 ### Execute API using virtual environments
-
 
 ```bash
 cd Zania_QA_API/

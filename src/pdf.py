@@ -1,7 +1,16 @@
+from abc import ABC, abstractmethod
+
 from langchain.document_loaders import PyPDFLoader
 
+
+class AbstractPDFLoader(ABC):
+    @abstractmethod
+    def load_documents(self):
+        pass
+
+
 # PDFLoader Class (Single Responsibility Principle)
-class PDFLoader:
+class PDFLoader(AbstractPDFLoader):
     def __init__(self, path: str):
         self.path = path
 

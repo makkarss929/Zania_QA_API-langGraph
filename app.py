@@ -1,12 +1,18 @@
-from fastapi import Request
-from typing import Union, List
-from src.qa import QASystem
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI
-import uvicorn
-from typing import Optional
-from pydantic import BaseModel
 import os
+from typing import Union, List
+
+import uvicorn
+from fastapi import FastAPI
+from fastapi import Request
+from fastapi.middleware.cors import CORSMiddleware
+from langchain.chat_models import ChatOpenAI
+from pydantic import BaseModel
+
+# Import implementations
+from src.pdf import PDFLoader
+from src.preprocessing import TextSplitter
+from src.qa import QASystem
+from src.vector_db import VectorDB
 
 
 class ZaniaQASchema(BaseModel):
@@ -26,8 +32,14 @@ app.add_middleware(
 )
 
 # Initialize and set up the QA system
-qa_system = QASystem(os.path.join("fixtures", "handbook.pdf"))
+pdf_loader = PDFLoader(os.path.join("fixtures", "handbook.pdf"))
+text_splitter = TextSplitter()
+vector_db = VectorDB()
+llm = ChatOpenAI(temperature=0.0, model="gpt-4o-mini")
+
+qa_system = QASystem(pdf_loader, text_splitter, vector_db, llm)
 qa_system.initialize_pipeline()
+
 
 @app.get("/")
 def hello():
