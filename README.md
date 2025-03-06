@@ -160,14 +160,14 @@ classDiagram
 
 ```mermaid
 graph LR
-    subgraph Build Graph
+    subgraph QASystem
     A[Start: retrieve] --> B(retrieve Node);
     B --> C(generate Node);
     C --> D[End];
     end
 
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style A fill:#003366,stroke:#333,stroke-width:2px,color:#FFFFFF
+    style D fill:#003366,stroke:#333,stroke-width:2px,color:#FFFFFF
 ```
 
 
