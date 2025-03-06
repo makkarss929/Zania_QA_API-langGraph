@@ -58,7 +58,9 @@ def generate(state: GraphState) -> Dict[str, str]:
     docs = state['documents']  # Access documents from the state
     llm = state['llm']  # Access llm from the state
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "Answer the following question based on the context.\n\nContext:\n{context}"),
+        ("system", """You are a helpful assistant that answers questions based on the provided context.
+        If the context does not contain the answer to the question, or if the context is not relevant to the question,
+        simply respond with: 'I am sorry, but the provided context does not contain the answer to the question.'\n\nContext:\n{context}"""),
         ("human", "{question}")
     ])
     chain = (
@@ -119,21 +121,21 @@ class QASystem:
             raise ValueError("QA graph has not been initialized.")
 
         if isinstance(query, list):
-            answers = []
+            results = []
             with ThreadPoolExecutor() as executor:
                 # Map questions to concurrent execution
                 future_answers = executor.map(self.process_single_query, query)
                 # Collect results
                 for question, answer in zip(query, future_answers):
-                    answers.append({"question": question, "answer": answer})
-            return answers
+                    results.append({"question": question, "answer": answer})
+            return results
 
         elif isinstance(query, str):
-            return self.process_single_query(query)
+            return {"question": query, "answer": self.process_single_query(query)}
 
     def process_single_query(self, query: str):
         """Processes a single query using the LangGraph."""
 
         inputs = {"query": query, "documents": [], "answer": None, "retriever": self.retriever, "llm": self.llm}
         result = self.graph.invoke(inputs)
-        return {"question": query, "answer": result.get("answer", "No answer found.")}
+        return result.get("answer", "No answer found.")

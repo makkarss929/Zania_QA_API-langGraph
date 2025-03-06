@@ -48,8 +48,8 @@ def hello():
 
 @app.post("/answer_question")
 def answer_question(body: ZaniaQASchema, request: Request):
-    answer = qa_system.answer_question(body.query)
-    return {"answer": answer}
+    result = qa_system.answer_question(body.query)
+    return result
 
 
 if __name__ == '__main__':

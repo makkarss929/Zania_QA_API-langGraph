@@ -89,30 +89,28 @@ graph LR
 ## Output Schema
 
 ```
-{
-  "answer": [
-    {
-      "question": "What is the name of the company?",
-      "answer": "The name of the company is Zania, Inc."
-    },
-    {
-      "question": "Who is the CEO of the company?",
-      "answer": "The CEO of the company is Shruti Gupta."
-    },
-    {
-      "question": "What is their vacation policy?",
-      "answer": "The company generally grants requests for vacation when possible, taking business needs into consideration. When multiple employees request the same time off, their length of employment, seniority, or collective-bargaining agreement may determine priority in scheduling vacation times. Employees must take vacation in increments of at least a specified number of hours or days. \n\nDuring a leave of absence, the company may require employees to use any unused vacation during disability or family medical leave, or any other leave of absence, where permissible under local, state, and federal law. \n\nUnused vacation can typically be carried over to the following year, but specific conditions for carryover may apply. Employees will accrue vacation based on a specified amount for every period of time worked, up to a maximum accrual amount. Once the maximum accrual is reached, no additional vacation will accrue until some of the accrued but unused vacation is used.\n\nEmployees are encouraged to use their vacation time and are eligible to begin using it immediately upon hire or after a specified introductory period. Requests for vacation should be made to the manager as far in advance as possible, but at least a specified number of days or weeks in advance."
-    },
-    {
-      "question": "What is the termination policy?",
-      "answer": "The termination policy states that employment is on an \"at-will\" basis, meaning that either the employee or the company can terminate the employment relationship at any time. In appropriate circumstances, management may provide a verbal warning followed by written warnings, and if the conduct does not improve, it may lead to demotion, transfer, forced leave, or termination. However, the company is not obligated to follow any specific disciplinary or grievance procedure and may discipline or terminate employees without prior warning or procedure, depending on the circumstances. Violations of company policies may result in disciplinary action, including immediate termination."
-    },
-    {
-      "question": "Please provide an Overview of OOPs principles?",
-      "answer": "I don't know."
-    }
-  ]
-}
+[
+  {
+    "question": "What is the name of the company?",
+    "answer": "The name of the company is Zania, Inc."
+  },
+  {
+    "question": "Who is the CEO of the company?",
+    "answer": "The CEO of the company is Shruti Gupta."
+  },
+  {
+    "question": "What is their vacation policy?",
+    "answer": "The vacation policy states that the company will generally grant requests for vacation when possible, taking business needs into consideration. When multiple employees request the same time off, their length of employment, seniority, or collective-bargaining agreement may determine priority in scheduling vacation times. Employees must take vacation in increments of at least a specified number of hours or days.\n\nDuring a leave of absence, the company may require employees to use any unused vacation during disability or family medical leave, or any other leave of absence, where permissible under local, state, and federal law. \n\nVacation granted during the first year of employment will be prorated based on the hire date. Eligible employees will accrue a specified number of hours, days, or weeks of vacation for every period of time worked, up to a maximum accrual amount. Once the maximum accrual amount is reached, employees will not accrue additional vacation until they use some of the accrued but unused vacation.\n\nEmployees are encouraged to use their vacation time and are eligible to begin using it immediately upon hire or after completing their introductory period. Requests for vacation must be made to the manager as far in advance as possible, but at least a specified number of days or weeks in advance."
+  },
+  {
+    "question": "What is the termination policy?",
+    "answer": "The termination policy states that employment is on an \"at-will\" basis, meaning that either the employee or the employer can terminate the employment at any time. The specific terms of the employment relationship, including termination procedures, are governed by the laws of the state in which the employee is employed. In appropriate circumstances, management may provide a verbal warning followed by written warnings, and if the conduct does not improve, it may lead to demotion, transfer, forced leave, or termination. However, the company is not obligated to follow any disciplinary or grievance procedure and may discipline or terminate employees without prior warning or procedure. Violating company policies may also result in immediate termination."
+  },
+  {
+    "question": "Please provide an Overview of OOPs principles?",
+    "answer": "I am sorry, but the provided context does not contain the answer to the question."
+  }
+]
 ```
 
 ## Deployment Instructions
