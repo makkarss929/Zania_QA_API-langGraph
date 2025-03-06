@@ -8,3 +8,9 @@ tiktoken
 fastapi>=0.68.0,<0.69.0
 pydantic>=1.8.0,<2.0.0
 uvicorn[standard]>=0.15.0,<0.16.0
+langgraph
+langchain[graph]
+openai
+beautifulsoup4
+requests
+lxml

@@ -1,14 +1,28 @@
 import os
-import openai
-from langchain.vectorstores import DocArrayInMemorySearch
-from langchain.embeddings import OpenAIEmbeddings
-from dotenv import load_dotenv, find_dotenv
-_ = load_dotenv(find_dotenv()) # read local .env file
+from abc import ABC, abstractmethod
 
-openai.api_key  = os.environ['OPENAI_API_KEY']
+import openai
+from dotenv import load_dotenv, find_dotenv
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import DocArrayInMemorySearch
+
+_ = load_dotenv(find_dotenv())  # read local .env file
+
+openai.api_key = os.environ['OPENAI_API_KEY']
 print("os.environ['OPENAI_API_KEY']", os.environ['OPENAI_API_KEY'])
 
-class VectorDB:
+
+class AbstractVectorDB(ABC):
+    @abstractmethod
+    def create_database(self, documents):
+        pass
+
+    @abstractmethod
+    def get_retriever(self, k=3):
+        pass
+
+
+class VectorDB(AbstractVectorDB):
     def __init__(self, embedding_model=None):
         self.embeddings = embedding_model or OpenAIEmbeddings()
         self.db = None

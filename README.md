@@ -1,7 +1,174 @@
-## Zania QA API
+## Zania QA API - Langraph
 
 * Creating a robust and scalable QA microservice
 
+
+### High-Level Diagram
+
+
+```mermaid
+graph LR
+    A[Client] --> B(FastAPI Application);
+    B --> C{LangGraph Pipeline};
+    C --> D[Document Retrieval];
+    D --> E(ChatOpenAI);
+    E --> F[Answer];
+    F --> B;
+    B --> A;
+```
+
+### Low - level Diagram
+
+```mermaid
+classDiagram
+    class FastAPI {
+        +app: Starlette
+        +routes: List~APIRoute~
+        +middleware: List~Middleware~
+        +add_middleware(middleware: Middleware)
+        +add_api_route(path: str, endpoint: Callable, ...)
+    }
+
+    class Starlette {
+        +routes: List~BaseRoute~
+        +middleware: List~Middleware~
+        +__call__(scope: Scope, receive: Receive, send: Send)
+    }
+
+    class APIRoute {
+        +path: str
+        +endpoint: Callable
+        +handle(scope: Scope, receive: Receive, send: Send)
+    }
+
+    class CORSMiddleware {
+        +allow_origins: List~str~
+        +allow_methods: List~str~
+        +__call__(scope: Scope, receive: Receive, send: Send)
+    }
+
+    class ZaniaQASchema {
+        +query: Union~str, List~str~~
+    }
+
+    class QASystem {
+        +pdf_loader: AbstractPDFLoader
+        +text_splitter: AbstractTextSplitter
+        +vector_db: AbstractVectorDB
+        +llm: ChatOpenAI
+        +graph: StateGraph
+        +retriever: VectorStoreRetriever
+        +initialize_pipeline()
+        +answer_question(query: Union~str, List~str~~)
+    }
+
+    class AbstractPDFLoader {
+        <<Interface>>
+        +load_documents() List~Document~
+    }
+
+    class PDFLoader {
+        +path: str
+        +load_documents() List~Document~
+    }
+
+    class AbstractTextSplitter {
+        <<Interface>>
+        +split_documents(documents: List~Document~) List~Document~
+    }
+
+    class TextSplitter {
+        +chunk_size: int
+        +chunk_overlap: int
+        +split_documents(documents: List~Document~) List~Document~
+    }
+
+    class AbstractVectorDB {
+        <<Interface>>
+        +create_database(documents: List~Document~)
+        +get_retriever(k: int) VectorStoreRetriever
+    }
+
+    class VectorDB {
+        +embeddings: OpenAIEmbeddings
+        +db: DocArrayInMemorySearch
+        +create_database(documents: List~Document~)
+        +get_retriever(k: int) VectorStoreRetriever
+    }
+
+   class DocArrayInMemorySearchRetriever {
+        +search_kwargs: Dict~str, int~
+        +get_relevant_documents(query: str) List~Document~
+    }
+
+    class ChatOpenAI {
+        +client: OpenAI
+        +model_name: str
+        +temperature: float
+        +invoke(prompt: PromptValue) str
+    }
+
+    class OpenAI {
+       +api_key: str
+       + ChatCompletion.create(...)
+    }
+
+    class PromptValue {
+        <<Interface>>
+        +to_messages() List~BaseMessage~
+    }
+
+    class StateGraph {
+        +add_node(name: str, func: Callable)
+        +add_edge(start: str, end: str)
+        +set_entry_point(node_name: str)
+        +compile()
+        +invoke(input: Dict)
+    }
+
+    class GraphState {
+        +query: str
+        +documents: List~Document~
+        +answer: Optional~str~
+        +retriever: DocArrayInMemorySearchRetriever
+        +llm: ChatOpenAI
+    }
+
+    class Document {
+        +metadata: Dict~str, Any~
+        +page_content: str
+    }
+
+    FastAPI "1" -- "1" Starlette : Contains
+    FastAPI "1" -- "*" APIRoute : Uses
+    FastAPI "1" -- "*" CORSMiddleware : Uses
+    APIRoute "1" -- "1" ZaniaQASchema : Receives Data
+    APIRoute "1" -- "1" QASystem : Uses
+    QASystem "1" -- "1" AbstractPDFLoader : Uses
+    QASystem "1" -- "1" AbstractTextSplitter : Uses
+    QASystem "1" -- "1" AbstractVectorDB : Uses
+    QASystem "1" -- "1" ChatOpenAI : Uses
+    QASystem "1" -- "1" StateGraph : Uses
+    QASystem "1" -- "1" DocArrayInMemorySearchRetriever : Uses
+    PDFLoader --|> AbstractPDFLoader : Implements
+    TextSplitter --|> AbstractTextSplitter : Implements
+    VectorDB --|> AbstractVectorDB : Implements
+    GraphState "1" -- "0..*" Document : Contains
+    ChatOpenAI ..> OpenAI: Uses
+    ChatOpenAI ..> PromptValue : Receives Prompt
+```
+
+```mermaid
+graph LR
+    subgraph Build Graph
+    A[Start: retrieve] --> B(retrieve Node);
+    B --> C(generate Node);
+    C --> D[End];
+    end
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+```
 
 
 ## Code Architecture
