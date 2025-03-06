@@ -20,144 +20,34 @@ graph LR
 ### Low - level Diagram
 
 ```mermaid
-classDiagram
-    class FastAPI {
-        +app: Starlette
-        +routes: List~APIRoute~
-        +middleware: List~Middleware~
-        +add_middleware(middleware: Middleware)
-        +add_api_route(path: str, endpoint: Callable, ...)
-    }
+graph LR
+    subgraph "FastAPI Application"
+        A[Client Request] --> B(FastAPI Router);
+        B --> C{QASystem};
+    end
 
-    class Starlette {
-        +routes: List~BaseRoute~
-        +middleware: List~Middleware~
-        +__call__(scope: Scope, receive: Receive, send: Send)
-    }
+    subgraph "QASystem"
+        C --> D{LangGraph Pipeline};
+        C --> E(PDFLoader);
+        C --> F(TextSplitter);
+        C --> G(VectorDB);
+        C --> H(ChatOpenAI);
+    end
 
-    class APIRoute {
-        +path: str
-        +endpoint: Callable
-        +handle(scope: Scope, receive: Receive, send: Send)
-    }
+    subgraph "LangGraph Pipeline"
+        D --> I{Retrieve Node};
+        I --> J(Vector Database);
+        D --> K{Generate Node};
+        K --> L(ChatOpenAI Model);
+        L --> M[Answer];
+        M --> D;
+    end
 
-    class CORSMiddleware {
-        +allow_origins: List~str~
-        +allow_methods: List~str~
-        +__call__(scope: Scope, receive: Receive, send: Send)
-    }
-
-    class ZaniaQASchema {
-        +query: Union~str, List~str~~
-    }
-
-    class QASystem {
-        +pdf_loader: AbstractPDFLoader
-        +text_splitter: AbstractTextSplitter
-        +vector_db: AbstractVectorDB
-        +llm: ChatOpenAI
-        +graph: StateGraph
-        +retriever: VectorStoreRetriever
-        +initialize_pipeline()
-        +answer_question(query: Union~str, List~str~~)
-    }
-
-    class AbstractPDFLoader {
-        <<Interface>>
-        +load_documents() List~Document~
-    }
-
-    class PDFLoader {
-        +path: str
-        +load_documents() List~Document~
-    }
-
-    class AbstractTextSplitter {
-        <<Interface>>
-        +split_documents(documents: List~Document~) List~Document~
-    }
-
-    class TextSplitter {
-        +chunk_size: int
-        +chunk_overlap: int
-        +split_documents(documents: List~Document~) List~Document~
-    }
-
-    class AbstractVectorDB {
-        <<Interface>>
-        +create_database(documents: List~Document~)
-        +get_retriever(k: int) VectorStoreRetriever
-    }
-
-    class VectorDB {
-        +embeddings: OpenAIEmbeddings
-        +db: DocArrayInMemorySearch
-        +create_database(documents: List~Document~)
-        +get_retriever(k: int) VectorStoreRetriever
-    }
-
-   class DocArrayInMemorySearchRetriever {
-        +search_kwargs: Dict~str, int~
-        +get_relevant_documents(query: str) List~Document~
-    }
-
-    class ChatOpenAI {
-        +client: OpenAI
-        +model_name: str
-        +temperature: float
-        +invoke(prompt: PromptValue) str
-    }
-
-    class OpenAI {
-       +api_key: str
-       + ChatCompletion.create(...)
-    }
-
-    class PromptValue {
-        <<Interface>>
-        +to_messages() List~BaseMessage~
-    }
-
-    class StateGraph {
-        +add_node(name: str, func: Callable)
-        +add_edge(start: str, end: str)
-        +set_entry_point(node_name: str)
-        +compile()
-        +invoke(input: Dict)
-    }
-
-    class GraphState {
-        +query: str
-        +documents: List~Document~
-        +answer: Optional~str~
-        +retriever: DocArrayInMemorySearchRetriever
-        +llm: ChatOpenAI
-    }
-
-    class Document {
-        +metadata: Dict~str, Any~
-        +page_content: str
-    }
-
-    FastAPI "1" -- "1" Starlette : Contains
-    FastAPI "1" -- "*" APIRoute : Uses
-    FastAPI "1" -- "*" CORSMiddleware : Uses
-    APIRoute "1" -- "1" ZaniaQASchema : Receives Data
-    APIRoute "1" -- "1" QASystem : Uses
-    QASystem "1" -- "1" AbstractPDFLoader : Uses
-    QASystem "1" -- "1" AbstractTextSplitter : Uses
-    QASystem "1" -- "1" AbstractVectorDB : Uses
-    QASystem "1" -- "1" ChatOpenAI : Uses
-    QASystem "1" -- "1" StateGraph : Uses
-    QASystem "1" -- "1" DocArrayInMemorySearchRetriever : Uses
-    PDFLoader --|> AbstractPDFLoader : Implements
-    TextSplitter --|> AbstractTextSplitter : Implements
-    VectorDB --|> AbstractVectorDB : Implements
-    GraphState "1" -- "0..*" Document : Contains
-    ChatOpenAI ..> OpenAI: Uses
-    ChatOpenAI ..> PromptValue : Receives Prompt
+    style C fill:#003366,stroke:#333,stroke-width:2px,color:#FFFFFF
+    style D fill:#003366,stroke:#333,stroke-width:2px,color:#FFFFFF
 ```
 
+### Graph Diagram
 ```mermaid
 graph LR
     subgraph QASystem
@@ -173,17 +63,15 @@ graph LR
 
 ## Code Architecture
 
-* In Code Architecture, we are following `OOPS` and `SOLID5` principles to make code more efficient `modular, flexible, extensible, scalable`.
-* Usually `open source repos` follow this [principles](https://realpython.com/solid-principles-python/), `SRP` and `DIP` are widely used.
-* Coding steps
-  1. Loading `PDF` -> Creating `PDFLoader` class, following `SRP (Single Responsibility Principle)`
-  2. Converting documents into `small chunks`, -> Creating `TextSplitter` class for that. following `SRP (Single Responsibility Principle)`
-  3. Creating `In Memory vector DB`. --> Creating `VectorDB` class for that, following `SRP (Single Responsibility Principle)`
-  4. finally, creating `QASystem` Class, and following `Facade Pattern, DIP (Dependency Inversion Principle)`, and `integrating 3 previous classes` and creating `answer_question function` in QASystem as single entry point.
-
-* Using `ThreadPoolExecutor` for concurrent processing for making parallel calls, getting results faster.
-
-
+*   In Code Architecture, we are following `OOPS` and `SOLID5` principles to make code more efficient `modular, flexible, extensible, scalable`.
+*   Usually, `open source repos` follow this [principles](https://realpython.com/solid-principles-python/), `SRP` and `DIP` are widely used.
+*   Key Components and Design:
+    *   **Abstract Base Classes (ABCs):**  We utilize abstract base classes (`AbstractPDFLoader`, `AbstractTextSplitter`, `AbstractVectorDB`) to define interfaces for key components. This promotes the Dependency Inversion Principle (DIP), allowing high-level modules to depend on abstractions rather than concrete implementations.
+    *   **Dependency Injection:**  The `QASystem` class receives instances of these abstract classes through its constructor, enabling loose coupling and making it easy to swap out different implementations (e.g., a different PDF loader or text splitter).
+    *   **LangGraph for Orchestration:** LangGraph is employed to define the question answering pipeline as a directed graph.
+        *   `GraphState`: Defines the state managed by the graph (query, documents, answer, etc.).
+        *   `retrieve` and `generate` Nodes: These functions represent individual steps in the QA process, making the code modular and easier to test.
+*   Using `ThreadPoolExecutor` for concurrent processing for making parallel calls and getting results faster.
 
 ## System Architecture
 
