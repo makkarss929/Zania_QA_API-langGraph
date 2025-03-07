@@ -64,7 +64,7 @@ graph LR
         * `GraphState`: Defines the state managed by the graph (query, documents, answer, etc.).
         * `retrieve` and `generate` Nodes: These functions represent individual steps in the QA process, making the code
           modular and easier to test.
-* Using `ThreadPoolExecutor` for concurrent processing for making parallel calls and getting results faster.
+* Using `asyncio.gather` for concurrent processing for making parallel calls and getting results faster.
 
 ## System Architecture
 

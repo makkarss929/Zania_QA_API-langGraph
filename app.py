@@ -7,6 +7,8 @@ from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.chat_models import ChatOpenAI
 from pydantic import BaseModel
+from dotenv import load_dotenv, find_dotenv
+
 
 # Import implementations
 from src.pdf import PDFLoader
@@ -14,6 +16,7 @@ from src.preprocessing import TextSplitter
 from src.qa import QASystem
 from src.vector_db import VectorDB
 
+load_dotenv(find_dotenv())
 
 class ZaniaQASchema(BaseModel):
     query: Union[str, List[str]]
@@ -32,10 +35,11 @@ app.add_middleware(
 )
 
 # Initialize and set up the QA system
+# Ensure handbook.pdf is present in the fixtures folder during Docker build
 pdf_loader = PDFLoader(os.path.join("fixtures", "handbook.pdf"))
 text_splitter = TextSplitter()
 vector_db = VectorDB()
-llm = ChatOpenAI(temperature=0.0, model="gpt-4o-mini")
+llm = ChatOpenAI(temperature=0.0, model="gpt-4o")  # or any other suitable model
 
 qa_system = QASystem(pdf_loader, text_splitter, vector_db, llm)
 qa_system.initialize_pipeline()
@@ -47,8 +51,8 @@ def hello():
 
 
 @app.post("/answer_question")
-def answer_question(body: ZaniaQASchema, request: Request):
-    result = qa_system.answer_question(body.query)
+async def answer_question(body: ZaniaQASchema, request: Request):
+    result = await qa_system.answer_question(body.query)
     return result
 
 

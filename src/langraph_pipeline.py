@@ -29,16 +29,16 @@ class LangraphPipeline:
     def build_graph(self):
         """Builds the LangGraph pipeline."""
 
-        def retrieve(state: GraphState) -> Dict[str, List[Document]]:
+        async def retrieve(state: GraphState) -> Dict[str, List[Document]]:  # Async node
             """Fetches relevant documents based on the query."""
             print("Entering retrieve node")
             query = state['query']
             retriever = state['retriever']
-            docs = retriever.get_relevant_documents(query)
+            docs = await retriever.aget_relevant_documents(query)  # Use aget_relevant_documents
             print(f"Retrieved {len(docs)} documents")
             return {"documents": docs}
 
-        def generate(state: GraphState) -> Dict[str, str]:
+        async def generate(state: GraphState) -> Dict[str, str]:  # Async node
             """Generates an answer based on the retrieved documents and query."""
             print("Entering generate node")
             query = state['query']
@@ -56,7 +56,7 @@ class LangraphPipeline:
                     | llm
                     | StrOutputParser()
             )
-            answer = chain.invoke(
+            answer = await chain.ainvoke(
                 {"context": docs, "question": query}
             )
 
@@ -72,15 +72,13 @@ class LangraphPipeline:
 
         return builder.compile()
 
-    def invoke(self, input_data: Dict) -> Dict:
+    async def invoke(self, input_data: Dict) -> Dict:
         """Invokes the LangGraph pipeline."""
-
-        # Ensure the input data is in the correct format for GraphState
         input_for_graph = {
             "query": input_data["query"],
-            "documents": [],  # Start with an empty list of documents
-            "answer": None,  # Start with no answer
-            "retriever": self.retriever,  # Pass the retriever
-            "llm": self.llm  # Pass the LLM
+            "documents": [],
+            "answer": None,
+            "retriever": self.retriever,
+            "llm": self.llm
         }
-        return self.graph.invoke(input_for_graph)
+        return await self.graph.ainvoke(input_for_graph)

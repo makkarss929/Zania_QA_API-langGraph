@@ -1,5 +1,5 @@
+import asyncio
 import os
-from concurrent.futures import ThreadPoolExecutor
 from typing import Union, List
 
 import openai
@@ -35,26 +35,22 @@ class QASystem:
         chunked_documents = self.text_splitter.split_documents(documents)
         self.vector_db.create_database(chunked_documents)
         self.retriever = self.vector_db.get_retriever()
-        # Create the LangraphPipeline instance
         self.pipeline = LangraphPipeline(self.retriever, self.llm)
 
-    def answer_question(self, query: Union[str, List[str]]):
+    async def process_single_query(self, query: str):
+        """Processes a single query using the LangraphPipeline (asynchronously)."""
+        result = await self.pipeline.invoke({"query": query})
+        return result.get("answer", "No answer found.")
+
+    async def answer_question(self, query: Union[str, List[str]]):
         if not self.pipeline:
             raise ValueError("QA pipeline has not been initialized.")
 
         if isinstance(query, list):
-            results = []
-            with ThreadPoolExecutor() as executor:
-                # Use self.process_single_query for each question
-                future_answers = executor.map(self.process_single_query, query)
-                for question, answer in zip(query, future_answers):
-                    results.append({"question": question, "answer": answer})
+            tasks = [self.process_single_query(q) for q in query]
+            answers = await asyncio.gather(*tasks)
+            results = [{"question": q, "answer": a} for q, a in zip(query, answers)]
             return results
-
         elif isinstance(query, str):
-            return {"question": query, "answer": self.process_single_query(query)}
-
-    def process_single_query(self, query: str):
-        """Processes a single query using the LangraphPipeline."""
-        result = self.pipeline.invoke({"query": query})  # Use the invoke method
-        return result.get("answer", "No answer found.")
+            answer = await self.process_single_query(query)
+            return {"question": query, "answer": answer}
