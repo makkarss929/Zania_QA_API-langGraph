@@ -1,6 +1,6 @@
 ## Zania QA API - LangGraph
 
-* Creating a robust and scalable QA microservice using langraph
+* Creating a robust and scalable QA microservice using langGraph
 
 ### Diagram of Code Architecture
 
