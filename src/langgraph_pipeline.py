@@ -20,7 +20,7 @@ class GraphState(TypedDict):
     llm: ChatOpenAI
 
 
-class LangraphPipeline:
+class LangGraphPipeline:
     def __init__(self, retriever: VectorStoreRetriever, llm: ChatOpenAI):
         self.retriever = retriever
         self.llm = llm

@@ -1,4 +1,4 @@
-## Zania QA API - Langraph
+## Zania QA API - LangGraph
 
 * Creating a robust and scalable QA microservice using langraph
 

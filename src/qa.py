@@ -6,7 +6,7 @@ import openai
 from dotenv import load_dotenv, find_dotenv
 from langchain.chat_models import ChatOpenAI
 
-from src.langraph_pipeline import LangraphPipeline
+from src.langgraph_pipeline import LangGraphPipeline
 from src.pdf import AbstractPDFLoader
 from src.preprocessing import AbstractTextSplitter
 from src.vector_db import AbstractVectorDB
@@ -35,7 +35,7 @@ class QASystem:
         chunked_documents = self.text_splitter.split_documents(documents)
         self.vector_db.create_database(chunked_documents)
         self.retriever = self.vector_db.get_retriever()
-        self.pipeline = LangraphPipeline(self.retriever, self.llm)
+        self.pipeline = LangGraphPipeline(self.retriever, self.llm)
 
     async def process_single_query(self, query: str):
         """Processes a single query using the LangraphPipeline (asynchronously)."""
