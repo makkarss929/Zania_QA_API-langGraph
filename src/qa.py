@@ -31,6 +31,8 @@ class GraphState(TypedDict):
         query: The user question.
         documents: Retrieved documents.
         answer: The final answer.
+        retriever: VectorStoreRetriever
+        llm: ChatOpenAI
     """
     query: str
     documents: List[Document]
