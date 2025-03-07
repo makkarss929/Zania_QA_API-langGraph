@@ -162,6 +162,6 @@ curl -X 'POST' \
 LangGraph's flexibility allows for many complex future enhancements. Here are a few examples:
 
 *   **Conversational Question Answering:** Implementing memory to handle follow-up questions and maintain context within a conversation.
-*   **Question Decomposition:** Breaking down complex questions into simpler sub-questions that can be answered individually and then synthesized.
+*   **Hierarchical Question Decomposition:** Breaking down complex questions into simpler sub-questions that can be answered individually and then synthesized.
 *   **Dynamic Tool Use:** Integrating external tools (e.g., a calculator, web search) to provide more comprehensive answers.
 *   **Multi-Lingual Support:** Adding support for multiple languages through translation and language-specific LLMs.
